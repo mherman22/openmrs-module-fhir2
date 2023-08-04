@@ -11,6 +11,8 @@ package org.openmrs.module.fhir2.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -45,24 +47,19 @@ public class FhirContactPointMap extends BaseOpenmrsData {
 	@Column(name = "fhir_contact_point_map_id")
 	private Integer id;
 	
-	@Column(nullable = false)
+	@Column(name = "attribute_type_domain", nullable = false)
+	private String attributeTypeDomain;
+	
+	@Column(name = "attribute_type_id", nullable = false)
+	private Integer attributeTypeId;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(length = 50)
 	private ContactPointSystem system;
 	
-	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	@Column(length = 50)
 	private ContactPointUse use;
 	
-	@Column(nullable = false)
-	private int rank;
-	
-	@OneToOne
-	@JoinColumn(name = "person_attribute_type_id")
-	private PersonAttributeType attributeType;
-	
-	@OneToOne
-	@JoinColumn(name = "location_attribute_type_id")
-	private LocationAttributeType locationAttributeType;
-	
-	@OneToOne
-	@JoinColumn(name = "provider_attribute_type_id")
-	private ProviderAttributeType providerAttributeType;
+	private Integer rank;
 }

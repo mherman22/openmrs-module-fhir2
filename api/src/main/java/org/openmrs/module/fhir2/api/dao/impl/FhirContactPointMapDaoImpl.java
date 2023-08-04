@@ -9,13 +9,18 @@
  */
 package org.openmrs.module.fhir2.api.dao.impl;
 
+import javax.annotation.Nonnull;
+import java.util.Optional;
+
 import lombok.AccessLevel;
 import lombok.Setter;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.SessionFactory;
 import org.openmrs.LocationAttributeType;
 import org.openmrs.PersonAttributeType;
 import org.openmrs.ProviderAttributeType;
 import org.openmrs.api.PersonService;
+import org.openmrs.attribute.BaseAttributeType;
 import org.openmrs.module.fhir2.api.dao.FhirContactPointMapDao;
 import org.openmrs.module.fhir2.model.FhirContactPointMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,22 +39,36 @@ public class FhirContactPointMapDaoImpl implements FhirContactPointMapDao {
 	private PersonService personService;
 	
 	@Override
-	public FhirContactPointMap getFhirContactPointMapForPersonAttributeType(PersonAttributeType attributeType) {
-		return (FhirContactPointMap) sessionFactory.getCurrentSession().createQuery("from fhir_contact_point_map fcp where fcp.person_attribute_type_id = :person_attribute_type_id").setParameter("person_attribute_type_id", attributeType.getId()).uniqueResult();
+	public Optional<FhirContactPointMap> getFhirContactPointMapForPersonAttributeType(@Nonnull PersonAttributeType attributeType) {
+		if (attributeType == null) {
+			return Optional.empty();
+		}
+		
+		return Optional.ofNullable((FhirContactPointMap) sessionFactory.getCurrentSession().createQuery(
+						"from fhir_contact_point_map fcp where fcp.attribute_type_domain = 'person' and fcp.attribute_type_id = :attribute_type_id")
+				.setParameter("attribute_type_id", attributeType.getId()).uniqueResult());
 	}
 	
 	@Override
-	public FhirContactPointMap getFhirContactPointMapForLocationAttributeType(LocationAttributeType attributeType) {
-		return (FhirContactPointMap) sessionFactory.getCurrentSession().createQuery("from fhir_contact_point_map fcp where fcp.location_attribute_type_id = :location_attribute_type_id").setParameter("location_attribute_type_id", attributeType.getId()).uniqueResult();
-	}
-	
-	@Override
-	public FhirContactPointMap getFhirContactPointMapForProviderAttributeType(ProviderAttributeType attributeType) {
-		return (FhirContactPointMap) sessionFactory.getCurrentSession().createQuery("from fhir_contact_point_map fcp where fcp.provider_attribute_type_id = :provider_attribute_type_id").setParameter("provider_attribute_type_id", attributeType.getId()).uniqueResult();
-	}
-	
-	@Override
-	public PersonAttributeType getPersonAttributeTypeByUuid(String uuid) {
-		return personService.getPersonAttributeTypeByUuid(uuid);
+	public Optional<FhirContactPointMap> getFhirContactPointMapForAttributeType(@Nonnull BaseAttributeType<?> attributeType) {
+		if (attributeType == null) {
+			return Optional.empty();
+		}
+		
+		String attributeTypeDomain = null;
+		if (attributeType instanceof LocationAttributeType) {
+			attributeTypeDomain = "location";
+		} else if (attributeType instanceof ProviderAttributeType) {
+			attributeTypeDomain = "provider";
+		}
+		
+		if (attributeTypeDomain == null) {
+			return Optional.empty();
+		}
+		
+		return Optional.ofNullable((FhirContactPointMap) sessionFactory.getCurrentSession().createQuery(
+						"from fhir_contact_point_map fcp where fcp.attribute_type_domain = :attribute_type_domain and fcp.attribute_type_id = :attribute_type_id")
+				.setParameter("attribute_type_domain", attributeTypeDomain)
+				.setParameter("attribute_type_id", attributeType.getId()).uniqueResult());
 	}
 }

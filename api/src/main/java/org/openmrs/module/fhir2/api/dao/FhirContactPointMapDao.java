@@ -9,19 +9,18 @@
  */
 package org.openmrs.module.fhir2.api.dao;
 
-import org.openmrs.BaseOpenmrsMetadata;
-import org.openmrs.LocationAttributeType;
+import java.util.Optional;
+
 import org.openmrs.PersonAttributeType;
-import org.openmrs.ProviderAttributeType;
+import org.openmrs.attribute.BaseAttributeType;
 import org.openmrs.module.fhir2.model.FhirContactPointMap;
 
 public interface FhirContactPointMapDao {
 	
-	FhirContactPointMap getFhirContactPointMapForPersonAttributeType(PersonAttributeType attributeType);
+	Optional<FhirContactPointMap> getFhirContactPointMapForPersonAttributeType(PersonAttributeType attributeType);
 	
-	FhirContactPointMap getFhirContactPointMapForLocationAttributeType(LocationAttributeType attributeType);
+	Optional<FhirContactPointMap> getFhirContactPointMapForAttributeType(BaseAttributeType<?> attributeType);
 	
-	FhirContactPointMap getFhirContactPointMapForProviderAttributeType(ProviderAttributeType attributeType);
+	FhirContactPointMap saveFhirContactPointMap(FhirContactPointMap contactPointMap);
 	
-	PersonAttributeType getPersonAttributeTypeByUuid(String uuid);
 }

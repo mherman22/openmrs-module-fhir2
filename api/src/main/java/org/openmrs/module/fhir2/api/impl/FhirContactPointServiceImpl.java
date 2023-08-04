@@ -9,19 +9,18 @@
  */
 package org.openmrs.module.fhir2.api.impl;
 
+import java.util.Optional;
+
 import lombok.AccessLevel;
 import lombok.Setter;
-import org.openmrs.LocationAttributeType;
 import org.openmrs.PersonAttributeType;
-import org.openmrs.ProviderAttributeType;
+import org.openmrs.attribute.BaseAttributeType;
 import org.openmrs.module.fhir2.api.FhirContactPointService;
 import org.openmrs.module.fhir2.api.dao.FhirContactPointMapDao;
 import org.openmrs.module.fhir2.model.FhirContactPointMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Nonnull;
 
 @Component
 @Transactional
@@ -31,23 +30,22 @@ public class FhirContactPointServiceImpl implements FhirContactPointService {
 	@Autowired
 	private FhirContactPointMapDao dao;
 	
+	@Transactional(readOnly = true)
 	@Override
-	public FhirContactPointMap getFhirContactPointMapForPersonAttributeType(PersonAttributeType attributeType) {
+	public Optional<FhirContactPointMap> getFhirContactPointMapForPersonAttributeType(PersonAttributeType attributeType) {
 		return dao.getFhirContactPointMapForPersonAttributeType(attributeType);
 	}
 	
+	@Transactional(readOnly = true)
 	@Override
-	public FhirContactPointMap getFhirContactPointMapForLocationAttributeType(LocationAttributeType attributeType) {
-		return dao.getFhirContactPointMapForLocationAttributeType(attributeType);
+	public Optional<FhirContactPointMap> getFhirContactPointMapForAttributeType(BaseAttributeType<?> attributeType) {
+		return dao.getFhirContactPointMapForAttributeType(attributeType);
 	}
 	
+	@Transactional
 	@Override
-	public FhirContactPointMap getFhirContactPointMapForProviderAttributeType(ProviderAttributeType attributeType) {
-		return dao.getFhirContactPointMapForProviderAttributeType(attributeType);
+	public FhirContactPointMap saveFhirContactPointMap(FhirContactPointMap contactPointMap) {
+		return dao.saveFhirContactPointMap(contactPointMap);
 	}
 	
-	@Override
-	public PersonAttributeType getPersonAttributeTypeByUuid(@Nonnull String uuid) {
-		return dao.getPersonAttributeTypeByUuid(uuid);
-	}
 }
