@@ -32,6 +32,7 @@ import org.openmrs.api.PersonService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.module.fhir2.FhirConstants;
 import org.openmrs.module.fhir2.api.FhirGlobalPropertyService;
+import org.openmrs.module.fhir2.model.FhirContactPointMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TelecomTranslatorImplTest {
@@ -140,6 +141,23 @@ public class TelecomTranslatorImplTest {
 		PersonAttribute result = (PersonAttribute) telecomTranslator.toOpenmrsType(new PersonAttribute(), contactPoint);
 		assertThat(result, notNullValue());
 		assertThat(result.getValue(), equalTo(CONTACT_POINT_VALUE));
+	}
+	
+	@Test
+	public void shouldTranslateFhirContactPointUseToPersonAttributeUse() {
+		ContactPoint contactPoint = new ContactPoint();
+		contactPoint.setUse(ContactPoint.ContactPointUse.MOBILE);
+		
+		// Create a FhirContactPointMap associated with a PersonAttributeType
+		PersonAttribute personAttribute = new PersonAttribute();
+		PersonAttributeType personAttributeType = new PersonAttributeType();
+		FhirContactPointMap fhirContactPointMap = new FhirContactPointMap();
+
+		fhirContactPointMap.setAttributeType(personAttributeType);
+		
+		PersonAttribute result = (PersonAttribute) telecomTranslator.toOpenmrsType(new PersonAttribute(), contactPoint);
+		assertThat(result, notNullValue());
+		assertThat(result, equalTo(ContactPoint.ContactPointUse.MOBILE));
 	}
 	
 	@Test

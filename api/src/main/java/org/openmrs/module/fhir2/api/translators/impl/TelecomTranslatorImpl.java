@@ -17,13 +17,17 @@ import org.hl7.fhir.r4.model.ContactPoint;
 import org.openmrs.BaseOpenmrsData;
 import org.openmrs.LocationAttribute;
 import org.openmrs.PersonAttribute;
+import org.openmrs.PersonAttributeType;
 import org.openmrs.ProviderAttribute;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PersonService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.module.fhir2.FhirConstants;
+import org.openmrs.module.fhir2.api.FhirContactPointService;
 import org.openmrs.module.fhir2.api.FhirGlobalPropertyService;
+import org.openmrs.module.fhir2.api.dao.FhirContactPointMapDao;
 import org.openmrs.module.fhir2.api.translators.TelecomTranslator;
+import org.openmrs.module.fhir2.model.FhirContactPointMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +45,9 @@ public class TelecomTranslatorImpl implements TelecomTranslator<BaseOpenmrsData>
 	private ProviderService providerService;
 	
 	@Autowired
+	private FhirContactPointMapDao contactPointService;
+	
+	@Autowired
 	private FhirGlobalPropertyService globalPropertyService;
 	
 	@Override
@@ -55,9 +62,15 @@ public class TelecomTranslatorImpl implements TelecomTranslator<BaseOpenmrsData>
 				personAttribute.setUuid(contactPoint.getId());
 			}
 			personAttribute.setValue(contactPoint.getValue());
-			personAttribute.setAttributeType(personService.getPersonAttributeTypeByUuid(
-			    globalPropertyService.getGlobalProperty(FhirConstants.PERSON_CONTACT_POINT_ATTRIBUTE_TYPE)));
-		} else if (attribute instanceof LocationAttribute) {
+			
+			FhirContactPointMap openmrsContactPointMap = new FhirContactPointMap();
+			openmrsContactPointMap.setUse(contactPoint.getUse());
+			openmrsContactPointMap.setSystem(contactPoint.getSystem());
+			openmrsContactPointMap.setRank(contactPoint.getRank());
+			openmrsContactPointMap.setAttributeType(new PersonAttributeType());
+			
+		}
+		else if (attribute instanceof LocationAttribute) {
 			LocationAttribute locationAttribute = (LocationAttribute) attribute;
 			if (contactPoint.hasId()) {
 				locationAttribute.setUuid(contactPoint.getId());
